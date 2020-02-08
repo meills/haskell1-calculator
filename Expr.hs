@@ -20,7 +20,7 @@ eval :: [(Name, Int)] -> -- Variable name to value mapping
         Expr -> -- Expression to evaluate
         Maybe Int -- Result (if no errors such as missing variables)
 eval vars (Val x) = Just x -- for values, just give the value directly
-eval vars (Add x y) = Nothing -- return an error (because it's not implemented yet!)
+eval vars (Add x y) = fmap sum $ sequence [eval vars x, eval vars y]  -- return an error (because it's not implemented yet!)
 
 digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'

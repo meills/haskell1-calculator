@@ -13,23 +13,32 @@ initState = State [] []
 -- that name and value added.
 -- If it already exists, remove the old value
 updateVars :: Name -> Int -> [(Name, Int)] -> [(Name, Int)]
-updateVars = undefined
+updateVars name int [] = [(name, int)]
+updateVars name int ((a, b):vs) = if a == name 
+                                  then do dropVar name ((a, b):vs)
+                                          updateVars name int vs
+                                  else updateVars name int vs
 
 -- Return a new set of variables with the given name removed
 dropVar :: Name -> [(Name, Int)] -> [(Name, Int)]
-dropVar = undefined
+dropVar name [] = []
+dropVar name ((a, b):vs) | name == a   = dropVar name vs
+                         | otherwise   = (a, b) : dropVar name vs
 
 -- Add a command to the command history in the state
 addHistory :: State -> Command -> State
-addHistory = undefined
+addHistory st cmd = st { history = cmd : history st }
 
 process :: State -> Command -> IO ()
 process st (Set var e) 
-     = do let st' = undefined
+     = do let st' = addHistory st (Set var e)
           -- st' should include the variable set to the result of evaluating e
           repl st'
 process st (Eval e) 
-     = do let st' = undefined
+     = do let st' = addHistory st (Eval e)
+          case eval (vars st) e of 
+               Just n -> putStrLn (show n)
+               Nothing -> putStrLn "Invalid Number!"
           -- Print the result of evaluation
           repl st'
 
