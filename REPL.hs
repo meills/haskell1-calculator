@@ -14,7 +14,7 @@ initState = State [] []
 -- If it already exists, remove the old value
 updateVars :: Name -> Int -> [(Name, Int)] -> [(Name, Int)]
 updateVars name int [] = [(name, int)]
-updateVars name int ((a, b):vs) = if a == name 
+updateVars name int ((a, b):vs) = if a == name
                                   then do dropVar name ((a, b):vs)
                                           updateVars name int vs
                                   else updateVars name int vs
@@ -30,13 +30,13 @@ addHistory :: State -> Command -> State
 addHistory st cmd = st { history = cmd : history st }
 
 process :: State -> Command -> IO ()
-process st (Set var e) 
+process st (Set var e)
      = do let st' = addHistory st (Set var e)
           -- st' should include the variable set to the result of evaluating e
           repl st'
-process st (Eval e) 
+process st (Eval e)
      = do let st' = addHistory st (Eval e)
-          case eval (vars st) e of 
+          case eval (vars st) e of
                Just n -> putStrLn (show n)
                Nothing -> putStrLn "Invalid Number!"
           -- Print the result of evaluation
@@ -50,9 +50,12 @@ process st (Eval e)
 repl :: State -> IO ()
 repl st = do putStr (show (length (history st)) ++ " > ")
              inp <- getLine
-             case parse pCommand inp of
-                  [(cmd, "")] -> -- Must parse entire input
-                          process st cmd
-                  _ -> do putStrLn "Parse error"
-                          repl st
+             if inp == "quit"
+                  then do {putStrLn "bye"; return ()}
+                  else case parse pCommand inp of
+                    [(cmd, "")] -> -- Must parse entire input
+                            process st cmd
+                    _ -> do putStrLn "Parse error"
+                            repl st
+
 
