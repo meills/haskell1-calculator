@@ -51,8 +51,8 @@ pExpr = do t <- pTerm
                  ||| return t
 
 pFactor :: Parser Expr
-pFactor = do d <- digit
-             return (Val (digitToInt d))
+pFactor = do d <- int
+             return (Val d)
            ||| do v <- letter
                   error "Variables not yet implemented"
                 ||| do char '('
@@ -61,7 +61,9 @@ pFactor = do d <- digit
                        return e
 
 pTerm :: Parser Expr
-pTerm = do f <- pFactor
+pTerm = do w <- space
+           f <- pFactor
+           w <- space
            do char '*'
               t <- pTerm
               return (Multiply f t)
