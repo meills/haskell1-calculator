@@ -24,7 +24,7 @@ eval :: [(Name, Int)] -> -- Variable name to value mapping
         Expr -> -- Expression to evaluate
         Maybe Int -- Result (if no errors such as missing variables)
 eval vars (Val x) = Just x -- for values, just give the value directly
-eval vars (Add x y) = do {q <-  (eval vars x) ; p <-  (eval vars y); Just (q + p) } --fmap sum $ sequence [eval vars x, eval vars y]  -- return an error (because it's not implemented yet!)
+eval vars (Add x y) = do {q <-  (eval vars x) ; p <-  (eval vars y); Just (q + p) } -- Just ((eval vars x) + (eval vars y)) --fmap sum $ sequence [eval vars x, eval vars y]  -- return an error (because it's not implemented yet!)
 eval vars (Minus x y) =  do {q <-  (eval vars x) ; p <-  (eval vars y); Just (q - p) }
 eval vars (Multiply x y) = do {q <-  (eval vars x) ; p <-  (eval vars y); Just (q * p) }
 eval vars (Division x y) = do {q <-  (eval vars x) ; p <-  (eval vars y); Just (div q p) }

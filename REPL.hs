@@ -35,12 +35,21 @@ process st (Set var e)
           -- st' should include the variable set to the result of evaluating e
           repl st'
 process st (Eval e)
-     = do let st' = addHistory st (Eval e)
+     = do --let st' = addHistory st (Eval e)
+         -- let Just n = eval (vars st) e
+
           case eval (vars st) e of
-               Just n -> putStrLn (show n)
+               Just n -> do let [newVars] = updateVars "it" n (vars st)
+                            let st' = addHistory st (Eval e)
+                            let st'' = State [(newVars)] (history st')
+                            putStrLn (show n)
+                            --putStrLn (show (vars st'')) --Commented out (for illustration of working variable storage)
+                            repl st''
+
                Nothing -> putStrLn "Invalid Number!"
           -- Print the result of evaluation
-          repl st'
+          repl st
+
 
 -- Read, Eval, Print Loop
 -- This reads and parses the input using the pCommand parser, and calls
@@ -49,6 +58,7 @@ process st (Eval e)
 
 repl :: State -> IO ()
 repl st = do putStr (show (length (history st)) ++ " > ")
+             --putStr (show (length (vars st)) ++ " > ")
              inp <- getLine
              if inp == "quit"
                   then do {putStrLn "bye"; return ()}
