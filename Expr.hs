@@ -9,6 +9,7 @@ type Name = String
 -- add other operations, and variables
 data Expr = Add Expr Expr
           | Val Int
+          | Name [Char]
           | Minus Expr Expr
           | Multiply Expr Expr
           | Division Expr Expr
@@ -20,14 +21,31 @@ data Command = Set Name Expr
              | Eval Expr
   deriving Show
 
+
+retrieveVar :: [(Name, Int)] -> Name -> Maybe Int 
+retrieveVar [] x = Nothing
+retrieveVar ((a, b) : vs) x =  if a == x
+                               then Just b
+                               else retrieveVar vs x
+ 
 eval :: [(Name, Int)] -> -- Variable name to value mapping
         Expr -> -- Expression to evaluate
         Maybe Int -- Result (if no errors such as missing variables)
 eval vars (Val x) = Just x -- for values, just give the value directly
-eval vars (Add x y) = do {q <-  (eval vars x) ; p <-  (eval vars y); Just (q + p) } -- Just ((eval vars x) + (eval vars y)) --fmap sum $ sequence [eval vars x, eval vars y]  -- return an error (because it's not implemented yet!)
-eval vars (Minus x y) =  do {q <-  (eval vars x) ; p <-  (eval vars y); Just (q - p) }
-eval vars (Multiply x y) = do {q <-  (eval vars x) ; p <-  (eval vars y); Just (q * p) }
-eval vars (Division x y) = do {q <-  (eval vars x) ; p <-  (eval vars y); Just (div q p) }
+eval vars (Name x) = retrieveVar vars x
+                        --Just x
+eval vars (Add x y) = do q <-  (eval vars x)
+                         p <-  (eval vars y)
+                         Just (q + p) -- Just ((eval vars x) + (eval vars y)) --fmap sum $ sequence [eval vars x, eval vars y]  -- return an error (because it's not implemented yet!)
+eval vars (Minus x y) =  do q <-  (eval vars x) 
+                            p <-  (eval vars y)
+                            Just (q - p)
+eval vars (Multiply x y) = do q <-  (eval vars x)
+                              p <-  (eval vars y)
+                              Just (q * p)
+eval vars (Division x y) = do q <-  (eval vars x)
+                              p <-  (eval vars y)
+                              Just (div q p)
 
 digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
@@ -54,7 +72,7 @@ pFactor :: Parser Expr
 pFactor = do d <- int
              return (Val d)
            ||| do v <- letter
-                  error "Variables not yet implemented"
+                  return (Name [v])
                 ||| do char '('
                        e <- pExpr
                        char ')'
