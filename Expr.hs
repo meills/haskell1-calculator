@@ -51,7 +51,9 @@ digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
 
 pCommand :: Parser Command
-pCommand = do t <- letter
+pCommand = do w <- space
+              t <- letter
+              w <- space
               char '='
               e <- pExpr
               return (Set [t] e)
