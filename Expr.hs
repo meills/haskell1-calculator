@@ -50,7 +50,7 @@ eval vars (Division x y) = do q <-  (eval vars x)
                               p <-  (eval vars y)
                               Just (div q p)
 eval vars (Abs x) = do q <-  (eval vars x)
-                       Just (abs q) }
+                       Just (abs q)
 eval vars (Mod x y) = do q <-  (eval vars x)
                          p <-  (eval vars y)
                          Just (mod q p ) 

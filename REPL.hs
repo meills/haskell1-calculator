@@ -30,7 +30,7 @@ addHistory st cmd = st { history = cmd : history st }
 process :: State -> Command -> IO ()
 process st (Set var e)
      = do --putStrLn (show var)
-          putStrLn(show (vars st))
+          --putStrLn(show (vars st))
           --putStrLn (show e)
           case eval (vars st) e of
                Just n -> do let newVars = updateVars var n (vars st)
