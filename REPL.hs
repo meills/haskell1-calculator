@@ -49,9 +49,6 @@ historyCheck st cmd = do if (length cmd) == 1
                                              else do putStrLn "Invalid history point"
                                                      repl st
 
-
-
-
 process :: State -> Command -> IO ()
 process st (Set var e)
      = do --putStrLn (show var)
@@ -110,5 +107,3 @@ repl st = do putStr (show (length (history st)) ++ " > ")
                         process st cmd
                 _ -> do putStrLn "Parse error"
                         repl st
-
-

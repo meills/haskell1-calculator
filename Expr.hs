@@ -3,8 +3,11 @@ module Expr where
 import Parsing
 import Data.Maybe
 
-
 type Name = String
+
+-- data Operand = Int 
+--              | Float
+--   deriving Show
 
 -- At first, 'Expr' contains only addition and values. You will need to
 -- add other operations, and variables
@@ -27,13 +30,12 @@ data Command = Set Name Expr
              | Read Expr
   deriving Show
 
-
 retrieveVar :: [(Name, Int)] -> Name -> Maybe Int 
 retrieveVar [] x = Nothing
 retrieveVar ((a, b) : vs) x =  if a == x
                                then Just b
                                else retrieveVar vs x
- 
+
 eval :: [(Name, Int)] -> -- Variable name to value mapping
         Expr -> -- Expression to evaluate
         Maybe Int -- Result (if no errors such as missing variables)
@@ -59,22 +61,23 @@ eval vars (Mod x y) = do q <-  (eval vars x)
                          Just (mod q p ) 
 eval vars (Power x y) = do q <-  (eval vars x)
                            p <-  (eval vars y)
-                           Just (q ^ p)                        
+                           Just (q ^ p) 
 
 digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
 
+-- intToFloat :: Int -> Float
+-- intToFloat x = toEnum x - toEnum 0
+
 pCommand :: Parser Command
 pCommand = do string "quit"
-              return (Quit)   
+              return (Quit)
             ||| do t <- identifier
                    char '='
                    e <- pExpr
                    return (Set t e)
                 ||| do e <- pExpr
                        return (Eval e)
-                    
-                 
 
 pExpr :: Parser Expr
 pExpr = do t <- pTerm
@@ -85,20 +88,22 @@ pExpr = do t <- pTerm
                    e <- pExpr
                    return (Minus t e)
                  ||| return t
-
+                           
 pFactor :: Parser Expr
-pFactor = do d <- integer
+pFactor = do d <- float
              return (Val d)
-           ||| do v <- identifier
-                  return (Name v)
-                ||| do char '('
-                       e <- pExpr
-                       char ')'
-                       return e
-                     ||| do char '|' 
-                            e <- pExpr
-                            char '|'
-                            return (Abs e)
+           ||| do f <- float
+                  return (Val f)
+              ||| do v <- identifier
+                     return (Name v)
+                    ||| do char '('
+                           e <- pExpr
+                           char ')'
+                           return e
+                        ||| do char '|' 
+                               e <- pExpr
+                               char '|'
+                               return (Abs e)
 
 pTerm :: Parser Expr
 pTerm = do f <- pFactor
@@ -108,12 +113,10 @@ pTerm = do f <- pFactor
             ||| do char '/'
                    t <- pTerm
                    return (Division f t)
-                 ||| do char '^' 
+                 ||| do char '^'
                         t <- pTerm
                         return (Power f t)
-                      ||| do char '%' 
+                      ||| do char '%'
                              t <- pTerm
                              return (Mod f t)
                             ||| return f
-
-                    
