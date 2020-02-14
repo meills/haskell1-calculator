@@ -86,6 +86,13 @@ process st (Eval e)
                              repl st
 
           -- Print the result of evaluation
+-- terminate program when Quit command is returned
+process st (Quit)
+     = do putStrLn "bye"
+          return ()
+
+process st (Read e)
+     = putStrLn "Reading File"
 
 
 -- Read, Eval, Print Loop
@@ -98,9 +105,6 @@ repl st = do putStr (show (length (history st)) ++ " > ")
              --putStr (show (length (vars st)) ++ " > ")
              inp <- getLine
              if (head inp) == '!' then do {historyCheck st inp}
-             else if inp == "quit"
-                  then do {putStrLn "bye"; return ()}
-             --else if 
              else case parse pCommand inp of
                 [(cmd, "")] -> -- Must parse entire input
                         process st cmd

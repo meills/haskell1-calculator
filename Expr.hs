@@ -23,6 +23,8 @@ data Expr = Add Expr Expr
 -- an expression
 data Command = Set Name Expr
              | Eval Expr
+             | Quit
+             | Read Expr
   deriving Show
 
 
@@ -63,12 +65,16 @@ digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
 
 pCommand :: Parser Command
-pCommand = do t <- identifier
-              char '='
-              e <- pExpr
-              return (Set t e)
-            ||| do e <- pExpr
-                   return (Eval e)
+pCommand = do string "quit"
+              return (Quit)   
+            ||| do t <- identifier
+                   char '='
+                   e <- pExpr
+                   return (Set t e)
+                ||| do e <- pExpr
+                       return (Eval e)
+                    
+                 
 
 pExpr :: Parser Expr
 pExpr = do t <- pTerm
