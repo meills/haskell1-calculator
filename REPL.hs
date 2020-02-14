@@ -12,24 +12,15 @@ initState = State [] []
 -- Given a variable name and a value, return a new set of variables with
 -- that name and value added.
 -- If it already exists, remove the old value
---updateVars :: Name -> Int -> [(Name, Int)] -> [(Name, Int)]
---updateVars name int [] = [(name, int)]
---updateVars name int ((a, b):vs) = if a == name
-                                  --then do dropVar name ((a, b): vs)
-                                         -- (a, b) : updateVars name int vs
-                                 -- else (a, b) : updateVars name int vs
-
 updateVars :: Name -> Int -> [(Name, Int)] -> [(Name, Int)]
 updateVars name int [] = [(name, int)]
-updateVars name int (v:vs) = do dropVar name (v:vs)
-                                (v:vs) ++ [(name, int)]
+updateVars name int (v:vs) = do let newVars = dropVar name (v:vs)
+                                newVars ++ [(name, int)]
                                      
 
 -- Return a new set of variables with the given name removed
 dropVar :: Name -> [(Name, Int)] -> [(Name, Int)]
-dropVar name [] = []
-dropVar name ((a, b):vs) | name == a   = vs
-                         | otherwise   = (a, b) : dropVar name vs
+dropVar name ((a,b):vs) = filter (\(a,_) -> a /= name) ((a,b):vs)
 
 
 -- Add a command to the command history in the state
@@ -66,7 +57,7 @@ process st (Eval e)
                             --putStrLn (show (vars st'')) --Commented out (for illustration of working variable storage)
                             repl st''
 
-               Nothing -> do putStrLn "Invalid Number!"
+               Nothing -> do putStrLn "Variable has not been declared!"
                              repl st
 
           -- Print the result of evaluation

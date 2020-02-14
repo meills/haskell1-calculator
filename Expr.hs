@@ -62,10 +62,10 @@ digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
 
 pCommand :: Parser Command
-pCommand = do t <- letter
+pCommand = do t <- identifier
               char '='
               e <- pExpr
-              return (Set [t] e)
+              return (Set t e)
             ||| do e <- pExpr
                    return (Eval e)
 
@@ -80,7 +80,7 @@ pExpr = do t <- pTerm
                  ||| return t
 
 pFactor :: Parser Expr
-pFactor = do d <- int
+pFactor = do d <- integer
              return (Val d)
            ||| do v <- letter
                   return (Name [v])
@@ -90,9 +90,7 @@ pFactor = do d <- int
                        return e
 
 pTerm :: Parser Expr
-pTerm = do w <- space
-           f <- pFactor
-           w <- space
+pTerm = do f <- pFactor
            do char '*'
               t <- pTerm
               return (Multiply f t)
