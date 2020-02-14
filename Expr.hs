@@ -23,6 +23,8 @@ data Expr = Add Expr Expr
 -- an expression
 data Command = Set Name Expr
              | Eval Expr
+             | Quit
+             | File Expr
   deriving Show
 
 
@@ -41,20 +43,26 @@ eval vars (Name x) = retrieveVar vars x
 eval vars (Add x y) = do q <-  (eval vars x)
                          p <-  (eval vars y)
                          Just (q + p) -- Just ((eval vars x) + (eval vars y)) --fmap sum $ sequence [eval vars x, eval vars y]  -- return an error (because it's not implemented yet!)
+
 eval vars (Minus x y) =  do q <-  (eval vars x) 
                             p <-  (eval vars y)
                             Just (q - p)
+
 eval vars (Multiply x y) = do q <-  (eval vars x)
                               p <-  (eval vars y)
                               Just (q * p)
+
 eval vars (Division x y) = do q <-  (eval vars x)
                               p <-  (eval vars y)
                               Just (div q p)
+
 eval vars (Abs x) = do q <-  (eval vars x)
                        Just (abs q)
+
 eval vars (Mod x y) = do q <-  (eval vars x)
                          p <-  (eval vars y)
                          Just (mod q p ) 
+
 eval vars (Power x y) = do q <-  (eval vars x)
                            p <-  (eval vars y)
                            Just (q ^ p)                        
@@ -63,12 +71,18 @@ digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
 
 pCommand :: Parser Command
-pCommand = do t <- identifier
-              char '='
-              e <- pExpr
-              return (Set t e)
-            ||| do e <- pExpr
-                   return (Eval e)
+pCommand = do string ":q"
+              return (Quit)
+            ||| do string ":r"
+                   f <- pExpr
+                   return (File f)      
+                ||| do t <- identifier
+                       char '='
+                       e <- pExpr
+                       return (Set t e)
+                    ||| do e <- pExpr
+                           return (Eval e)
+                    
 
 pExpr :: Parser Expr
 pExpr = do t <- pTerm
