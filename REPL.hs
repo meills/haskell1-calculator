@@ -2,6 +2,8 @@ module REPL where
 
 import Expr
 import Parsing
+import Data.Typeable
+
 
 data State = State { vars :: [(Name, Int)],
                      history :: [Command] }
@@ -25,7 +27,30 @@ dropVar name ((a,b):vs) = filter (\(a,_) -> a /= name) ((a,b):vs)
 
 -- Add a command to the command history in the state
 addHistory :: State -> Command -> State
-addHistory st cmd = st { history = cmd : history st }
+addHistory st cmd = do let st' = State (vars st) (history st ++ [cmd])
+                       st'
+                              --else let st' = State (vars st) (history st ++ [cmd])
+
+checkLength :: Int -> [Command] -> Bool
+checkLength request history = do let lengthOf = (length history) -1
+                                 if lengthOf < request
+                                     then False
+                                     else True
+
+
+historyCheck :: State -> [Char] -> IO ()
+historyCheck st cmd = do if (length cmd) == 1
+                           then do putStrLn "Parse error"
+                                   repl st
+                           else do let request = last cmd
+                                   let requestInt = digitToInt request
+                                   if (checkLength requestInt (history st) == True)
+                                             then process st (history st !!(requestInt))
+                                             else do putStrLn "Invalid history point"
+                                                     repl st
+
+
+
 
 process :: State -> Command -> IO ()
 process st (Set var e)
@@ -54,7 +79,7 @@ process st (Eval e)
                             let st' = addHistory st (Eval e)
                             let st'' = State (newVars) (history st')
                             putStrLn (show n)
-                            --putStrLn (show (vars st'')) --Commented out (for illustration of working variable storage)
+                            --print (show (history st'')) --Commented out (for illustration of working variable storage)
                             repl st''
 
                Nothing -> do putStrLn "Variable has not been declared!"
@@ -72,7 +97,8 @@ repl :: State -> IO ()
 repl st = do putStr (show (length (history st)) ++ " > ")
              --putStr (show (length (vars st)) ++ " > ")
              inp <- getLine
-             if inp == "quit"
+             if (head inp) == '!' then do {historyCheck st inp}
+             else if inp == "quit"
                   then do {putStrLn "bye"; return ()}
                   else case parse pCommand inp of
                     [(cmd, "")] -> -- Must parse entire input

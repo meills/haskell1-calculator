@@ -3,6 +3,7 @@ module Expr where
 import Parsing
 import Data.Maybe
 
+
 type Name = String
 
 -- At first, 'Expr' contains only addition and values. You will need to
@@ -80,7 +81,11 @@ pExpr = do t <- pTerm
                  ||| return t
 
 pFactor :: Parser Expr
+<<<<<<< HEAD
 pFactor = do d <- integer
+=======
+pFactor = do d <- int
+>>>>>>> historyWorking
              return (Val d)
            ||| do v <- letter
                   return (Name [v])
@@ -90,7 +95,9 @@ pFactor = do d <- integer
                        return e
 
 pTerm :: Parser Expr
-pTerm = do f <- pFactor
+pTerm = do w <- space
+           f <- pFactor
+           w <- space
            do char '*'
               t <- pTerm
               return (Multiply f t)
