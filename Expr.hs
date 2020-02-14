@@ -81,11 +81,7 @@ pExpr = do t <- pTerm
                  ||| return t
 
 pFactor :: Parser Expr
-<<<<<<< HEAD
 pFactor = do d <- integer
-=======
-pFactor = do d <- int
->>>>>>> historyWorking
              return (Val d)
            ||| do v <- letter
                   return (Name [v])
@@ -95,9 +91,7 @@ pFactor = do d <- int
                        return e
 
 pTerm :: Parser Expr
-pTerm = do w <- space
-           f <- pFactor
-           w <- space
+pTerm = do f <- pFactor
            do char '*'
               t <- pTerm
               return (Multiply f t)
