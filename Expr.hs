@@ -89,6 +89,10 @@ pFactor = do d <- integer
                        e <- pExpr
                        char ')'
                        return e
+                     ||| do char '|' 
+                            e <- pExpr
+                            char '|'
+                            return (Abs e)
 
 pTerm :: Parser Expr
 pTerm = do f <- pFactor
@@ -105,8 +109,5 @@ pTerm = do f <- pFactor
                              t <- pTerm
                              return (Mod f t)
                             ||| return f
-          ||| do char '|' 
-                 t <- pTerm
-                 char '|'
-                 return (Abs t)
-                      
+
+                    

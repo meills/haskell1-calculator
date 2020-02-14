@@ -100,10 +100,11 @@ repl st = do putStr (show (length (history st)) ++ " > ")
              if (head inp) == '!' then do {historyCheck st inp}
              else if inp == "quit"
                   then do {putStrLn "bye"; return ()}
-                  else case parse pCommand inp of
-                    [(cmd, "")] -> -- Must parse entire input
-                            process st cmd
-                    _ -> do putStrLn "Parse error"
-                            repl st
+             --else if 
+             else case parse pCommand inp of
+                [(cmd, "")] -> -- Must parse entire input
+                        process st cmd
+                _ -> do putStrLn "Parse error"
+                        repl st
 
 
