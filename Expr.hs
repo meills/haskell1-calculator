@@ -83,8 +83,8 @@ pExpr = do t <- pTerm
 pFactor :: Parser Expr
 pFactor = do d <- integer
              return (Val d)
-           ||| do v <- letter
-                  return (Name [v])
+           ||| do v <- identifier
+                  return (Name v)
                 ||| do char '('
                        e <- pExpr
                        char ')'
