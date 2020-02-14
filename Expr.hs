@@ -13,6 +13,9 @@ data Expr = Add Expr Expr
           | Minus Expr Expr
           | Multiply Expr Expr
           | Division Expr Expr
+          | Abs Expr
+          | Mod Expr Expr
+          | Power Expr Expr
   deriving Show
 
 -- These are the REPL commands - set a variable name to a value, and evaluate
@@ -46,6 +49,14 @@ eval vars (Multiply x y) = do q <-  (eval vars x)
 eval vars (Division x y) = do q <-  (eval vars x)
                               p <-  (eval vars y)
                               Just (div q p)
+eval vars (Abs x) = do q <-  (eval vars x)
+                       Just (abs q) }
+eval vars (Mod x y) = do q <-  (eval vars x)
+                         p <-  (eval vars y)
+                         Just (mod q p ) 
+eval vars (Power x y) = do q <-  (eval vars x)
+                           p <-  (eval vars y)
+                           Just (q ^ p)                        
 
 digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
@@ -88,5 +99,15 @@ pTerm = do w <- space
             ||| do char '/'
                    t <- pTerm
                    return (Division f t)
-                 ||| return f
-
+                 ||| do char '^' 
+                        t <- pTerm
+                        return (Power f t)
+                      ||| do char '%' 
+                             t <- pTerm
+                             return (Mod f t)
+                            ||| return f
+          ||| do char '|' 
+                 t <- pTerm
+                 char '|'
+                 return (Abs t)
+                      
