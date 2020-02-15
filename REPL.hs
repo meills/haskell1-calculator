@@ -60,6 +60,18 @@ checkDigits (x:xs) = do if isDigit x == True then checkDigits xs
                         else False
 
 
+parseOpr :: State -> String -> IO ()
+parseOpr st ""  = repl st
+parseOpr st opr = do putStrLn( show opr) 
+                     case parse pCommand opr of
+                         [(cmd, "")] -> process st cmd
+                         _ -> do putStrLn "Parse error"
+                            
+
+processFile :: State -> [String] -> IO ()
+processFile st [] = parseOpr st "" 
+processFile st cs = do putStrLn (show cs)
+                       mapM_ (\c -> parseOpr st c) cs   
 
 
 process :: State -> Command -> IO ()
@@ -102,11 +114,11 @@ process st (Quit)
 
 
 
-process st (File f)
+process st (Read f)
      = do putStrLn (show f)
           content <- readFile f
           let linesInFile = lines content
-          repl st
+          processFile st linesInFile
 
 -- Read, Eval, Print Loop
 -- This reads and parses the input using the pCommand parser, and calls

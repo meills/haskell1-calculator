@@ -5,6 +5,7 @@ import Data.Maybe
 
 
 type Name = String
+type File = Name
 
 -- At first, 'Expr' contains only addition and values. You will need to
 -- add other operations, and variables
@@ -17,6 +18,7 @@ data Expr = Add Expr Expr
           | Abs Expr
           | Mod Expr Expr
           | Power Expr Expr
+        
   deriving Show
 
 -- These are the REPL commands - set a variable name to a value, and evaluate
@@ -24,7 +26,8 @@ data Expr = Add Expr Expr
 data Command = Set Name Expr
              | Eval Expr
              | Quit
-             | File Expr
+             | Read File
+
   deriving Show
 
 
@@ -74,8 +77,8 @@ pCommand :: Parser Command
 pCommand = do string ":q"
               return (Quit)
             ||| do string ":r"
-                   f <- pExpr
-                   return (File f)      
+                   f <- filename
+                   return (Read f)      
                 ||| do t <- identifier
                        char '='
                        e <- pExpr

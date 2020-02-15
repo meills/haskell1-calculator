@@ -127,10 +127,11 @@ int                           =  do char '-'
                                   ||| nat
 
 file                          :: Parser String
-file                          = do x <- ident
-                                   char '.'
-                                   x <- ident
-                                   return x
+file                          = do f <- many1 letter
+                                   y <- char '.'
+                                   fs <- many1 letter
+                                   return (f ++ [y] ++ fs)
+                                 ||| ident
 
 space                         :: Parser ()
 space                         =  do many (sat isSpace)
@@ -159,4 +160,4 @@ symbol                        :: String -> Parser String
 symbol xs                     =  token (string xs)
 
 filename                      :: Parser String
-filename                      = token file
+filename                      =  token file
