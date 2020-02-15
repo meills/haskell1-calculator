@@ -2,6 +2,7 @@ module Expr where
 
 import Parsing
 import Data.Maybe
+import Data.Fixed
 
 type Name = String
 
@@ -52,9 +53,9 @@ eval vars (Division x y) = do q <-  (eval vars x)
                               Just (q / p)
 eval vars (Abs x) = do q <-  (eval vars x)
                        Just (abs q)
--- eval vars (Mod x y) = do q <-  (eval vars x)
---                          p <-  (eval vars y)
---                          Just (q ** p ) doesn't work
+eval vars (Mod x y) = do q <-  (eval vars x)
+                         p <-  (eval vars y)
+                         Just (mod' q p )
                      --     Just (mod q p )
 eval vars (Power x y) = do q <-  (eval vars x)
                            p <-  (eval vars y)
