@@ -3,6 +3,8 @@ module REPL where
 import Expr
 import Parsing
 import Data.Typeable
+import Data.Char (isDigit)
+
 
 
 data State = State { vars :: [(Name, Int)],
@@ -40,14 +42,22 @@ checkLength request history = do let lengthOf = (length history) -1
 
 historyCheck :: State -> [Char] -> IO ()
 historyCheck st cmd = do if (length cmd) == 1
-                           then do putStrLn "Parse error"
-                                   repl st
-                           else do let request = last cmd
-                                   let requestInt = digitToInt request
-                                   if (checkLength requestInt (history st) == True)
+                         then do putStrLn "Parse error"
+                                 repl st
+                         else if checkDigits (drop 1 cmd) == True 
+                                then do let request = drop 1 cmd
+                                        let requestInt = read request :: Int
+                                        if (checkLength requestInt (history st) == True)
                                              then process st (history st !!(requestInt))
                                              else do putStrLn "Invalid history point"
                                                      repl st
+                         else do putStrLn "History cannot contain non-integers"
+                                 repl st  
+
+checkDigits :: [Char] -> Bool
+checkDigits [] = True
+checkDigits (x:xs) = do if isDigit x == True then checkDigits xs
+                        else False
 
 
 
@@ -89,6 +99,8 @@ process st (Eval e)
 process st (Quit)
      = do putStrLn "bye"
           return ()
+
+
 
 process st (File f)
      = do putStrLn (show f)
