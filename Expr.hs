@@ -99,14 +99,16 @@ pFactor = do d <- integer
              return (Val d)
            ||| do v <- identifier
                   return (Name v)
-                ||| do char '('
-                       e <- pExpr
-                       char ')'
-                       return e
-                     ||| do char '|' 
+                ||| do f <- file
+                       return (Name f)
+                     ||| do char '('
                             e <- pExpr
-                            char '|'
-                            return (Abs e)
+                            char ')'
+                            return e
+                          ||| do char '|' 
+                                 e <- pExpr
+                                 char '|'
+                                 return (Abs e)
 
 pTerm :: Parser Expr
 pTerm = do f <- pFactor

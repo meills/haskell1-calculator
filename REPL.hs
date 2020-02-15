@@ -90,8 +90,10 @@ process st (Quit)
      = do putStrLn "bye"
           return ()
 
-process st (File f)
+process st (File (Name f))
      = do putStrLn (show f)
+          content <- readFile f
+          let linesInFile = lines content
           repl st
 
 -- Read, Eval, Print Loop
@@ -101,10 +103,8 @@ process st (File f)
 
 repl :: State -> IO ()
 repl st = do putStr (show (length (history st)) ++ " > ")
-             --putStr (show (length (vars st)) ++ " > ")
              inp <- getLine
              if (head inp) == '!' then do {historyCheck st inp}
-             --else if 
              else case parse pCommand inp of
                 [(cmd, "")] -> -- Must parse entire input
                         process st cmd

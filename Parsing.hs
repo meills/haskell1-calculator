@@ -126,6 +126,12 @@ int                           =  do char '-'
                                     return (-n)
                                   ||| nat
 
+file                          :: Parser String
+file                          = do x <- ident
+                                   char '.'
+                                   x <- ident
+                                   return x
+
 space                         :: Parser ()
 space                         =  do many (sat isSpace)
                                     return ()
@@ -151,3 +157,6 @@ integer                       =  token int
 
 symbol                        :: String -> Parser String
 symbol xs                     =  token (string xs)
+
+filename                      :: Parser String
+filename                      = token file
