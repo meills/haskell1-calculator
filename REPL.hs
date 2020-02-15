@@ -5,7 +5,7 @@ import Parsing
 import Data.Typeable
 
 
-data State = State { vars :: [(Name, Int)],
+data State = State { vars :: [(Name, Float)],
                      history :: [Command] }
 
 initState :: State
@@ -14,14 +14,15 @@ initState = State [] []
 -- Given a variable name and a value, return a new set of variables with
 -- that name and value added.
 -- If it already exists, remove the old value
-updateVars :: Name -> Int -> [(Name, Int)] -> [(Name, Int)]
-updateVars name int [] = [(name, int)]
-updateVars name int (v:vs) = do let newVars = dropVar name (v:vs)
-                                newVars ++ [(name, int)]
+updateVars :: Name -> Float -> [(Name, Float)] -> [(Name, Float)]
+updateVars name float [] = [(name, float)]
+updateVars name float (v:vs) = do 
+                                   let newVars = dropVar name (v:vs)
+                                   newVars ++ [(name, float)]
                                      
 
 -- Return a new set of variables with the given name removed
-dropVar :: Name -> [(Name, Int)] -> [(Name, Int)]
+dropVar :: Name -> [(Name, Float)] -> [(Name, Float)]
 dropVar name ((a,b):vs) = filter (\(a,_) -> a /= name) ((a,b):vs)
 
 
@@ -31,9 +32,10 @@ addHistory st cmd = do let st' = State (vars st) (history st ++ [cmd])
                        st'
                               --else let st' = State (vars st) (history st ++ [cmd])
 
-checkLength :: Int -> [Command] -> Bool
+checkLength :: Float -> [Command] -> Bool
 checkLength request history = do let lengthOf = (length history) -1
-                                 if lengthOf < request
+                                 let lengthOfInFloat = intToFloat lengthOf
+                                 if lengthOfInFloat < request
                                      then False
                                      else True
 
@@ -44,7 +46,8 @@ historyCheck st cmd = do if (length cmd) == 1
                                    repl st
                            else do let request = last cmd
                                    let requestInt = digitToInt request
-                                   if (checkLength requestInt (history st) == True)
+                                   let requestFloat = charToFloat request
+                                   if (checkLength requestFloat (history st) == True)
                                              then process st (history st !!(requestInt))
                                              else do putStrLn "Invalid history point"
                                                      repl st

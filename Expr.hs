@@ -5,14 +5,10 @@ import Data.Maybe
 
 type Name = String
 
--- data Operand = Int 
---              | Float
---   deriving Show
-
 -- At first, 'Expr' contains only addition and values. You will need to
 -- add other operations, and variables
 data Expr = Add Expr Expr
-          | Val Int
+          | Val Float
           | Name [Char]
           | Minus Expr Expr
           | Multiply Expr Expr
@@ -30,15 +26,15 @@ data Command = Set Name Expr
              | Read Expr
   deriving Show
 
-retrieveVar :: [(Name, Int)] -> Name -> Maybe Int 
+retrieveVar :: [(Name, Float)] -> Name -> Maybe Float 
 retrieveVar [] x = Nothing
 retrieveVar ((a, b) : vs) x =  if a == x
                                then Just b
                                else retrieveVar vs x
 
-eval :: [(Name, Int)] -> -- Variable name to value mapping
+eval :: [(Name, Float)] -> -- Variable name to value mapping
         Expr -> -- Expression to evaluate
-        Maybe Int -- Result (if no errors such as missing variables)
+        Maybe Float -- Result (if no errors such as missing variables)
 eval vars (Val x) = Just x -- for values, just give the value directly
 eval vars (Name x) = retrieveVar vars x
                         --Just x
@@ -53,21 +49,26 @@ eval vars (Multiply x y) = do q <-  (eval vars x)
                               Just (q * p)
 eval vars (Division x y) = do q <-  (eval vars x)
                               p <-  (eval vars y)
-                              Just (div q p)
+                              Just (q / p)
 eval vars (Abs x) = do q <-  (eval vars x)
                        Just (abs q)
 eval vars (Mod x y) = do q <-  (eval vars x)
                          p <-  (eval vars y)
-                         Just (mod q p ) 
+                         Just (q ** p )
+                     --     Just (mod q p )
 eval vars (Power x y) = do q <-  (eval vars x)
                            p <-  (eval vars y)
-                           Just (q ^ p) 
+                           Just (q ** p)
+                     --       Just (q ^ p)
 
 digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
 
--- intToFloat :: Int -> Float
--- intToFloat x = toEnum x - toEnum 0
+intToFloat :: Int -> Float
+intToFloat floatx = fromInteger (toInteger floatx)
+
+charToFloat :: Char -> Float
+charToFloat fp = fromInteger (read [fp])
 
 pCommand :: Parser Command
 pCommand = do string "quit"
@@ -92,21 +93,21 @@ pExpr = do t <- pTerm
 pFactor :: Parser Expr
 pFactor = do d <- float
              return (Val d)
-           ||| do f <- float
-                  return (Val f)
-              ||| do v <- identifier
-                     return (Name v)
-                    ||| do char '('
-                           e <- pExpr
-                           char ')'
-                           return e
-                        ||| do char '|' 
-                               e <- pExpr
-                               char '|'
-                               return (Abs e)
+           ||| do v <- identifier
+                  return (Name v)
+              ||| do char '('
+                     e <- pExpr
+                     char ')'
+                     return e
+                     ||| do char '|' 
+                            e <- pExpr
+                            char '|'
+                            return (Abs e)
 
 pTerm :: Parser Expr
-pTerm = do f <- pFactor
+pTerm = do w <- space
+           f <- pFactor
+           w <- space
            do char '*'
               t <- pTerm
               return (Multiply f t)
