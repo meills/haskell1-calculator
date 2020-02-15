@@ -128,10 +128,10 @@ int                           =  do char '-'
 
 -- Added to support Float function
 floatNat                      :: Parser Float
-floatNat                      = do xs <- many1 digit
-                                   char '.'
+floatNat                      = do x  <- many1 digit
+                                   y  <- char '.'
                                    xs <- many1 digit
-                                   return (read xs) -- HERE
+                                   return (read (x ++ [y] ++ xs)) -- HERE
 
 float                         :: Parser Float
 float                         = do char '-'
