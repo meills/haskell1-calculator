@@ -59,19 +59,60 @@ checkDigits [] = True
 checkDigits (x:xs) = do if isDigit x == True then checkDigits xs
                         else False
 
+fileSt :: State
+fileSt = State [] []
 
-parseOpr :: State -> String -> IO ()
-parseOpr st ""  = repl st
-parseOpr st opr = do putStrLn( show opr) 
-                     case parse pCommand opr of
-                         [(cmd, "")] -> process st cmd
-                         _ -> do putStrLn "Parse error"
+
+processLine :: State -> Command -> [String] -> IO ()
+processLine st (Set var e) cs
+     = do case eval (vars st) e of
+               Just n -> do let newVars = updateVars var n (vars st)
+                            let st' = addHistory st (Set var e)
+                            let st'' = State (newVars) (history st')
+                            putStrLn "OK"
+                            processFile st'' cs
+    
+               Nothing -> do let fileSt = st
+                             putStrLn "Variable has not been declared!"
+                             processFile st cs
+
+
+processLine st (Eval e) cs
+     = do --let st' = addHistory st (Eval e)
+         -- let Just n = eval (vars st) e
+          case eval (vars st) e of
+               Just n -> do let newVars = updateVars "it" n (vars st)
+                            let st' = addHistory st (Eval e)
+                            let st'' = State (newVars) (history st')
+                            putStrLn (show n)
+                            processFile st'' cs
+
+               Nothing -> do putStrLn "Variable has not been declared!"
+                             processFile st cs
+
+          -- Print the result of evaluation
+processLine st (Quit) cs
+     = do putStrLn "bye"
+
+processLine st (Read f) cs
+     = do content <- readFile f
+          let linesInFile = lines content
+          processFile st linesInFile
+          
+
+parseOpr :: State -> String -> [String] -> IO ()
+--parseOpr st ""  = repl st
+parseOpr st opr cs = 
+                        case parse pCommand opr of
+                              [(cmd, "")] -> processLine st cmd cs
+                              _ -> do putStrLn "Parse error"
                             
 
 processFile :: State -> [String] -> IO ()
-processFile st [] = parseOpr st "" 
-processFile st cs = do putStrLn (show cs)
-                       mapM_ (\c -> parseOpr st c) cs   
+processFile st [] = repl st
+processFile st (c:cs) = 
+                           parseOpr st c cs
+
 
 
 process :: State -> Command -> IO ()
@@ -94,8 +135,6 @@ process st (Set var e)
 process st (Eval e)
      = do --let st' = addHistory st (Eval e)
          -- let Just n = eval (vars st) e
-          putStrLn( show (vars st))
-
           case eval (vars st) e of
                Just n -> do let newVars = updateVars "it" n (vars st)
                             let st' = addHistory st (Eval e)
@@ -115,8 +154,7 @@ process st (Quit)
 
 
 process st (Read f)
-     = do putStrLn (show f)
-          content <- readFile f
+     = do content <- readFile f
           let linesInFile = lines content
           processFile st linesInFile
 
