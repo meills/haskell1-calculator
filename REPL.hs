@@ -59,10 +59,6 @@ checkDigits [] = True
 checkDigits (x:xs) = do if isDigit x == True then checkDigits xs
                         else False
 
-fileSt :: State
-fileSt = State [] []
-
-
 processLine :: State -> Command -> [String] -> IO ()
 processLine st (Set var e) cs
      = do case eval (vars st) e of
