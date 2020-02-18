@@ -4,8 +4,8 @@ import Expr
 import Parsing
 import Data.Typeable
 import Data.Char (isDigit)
-
-
+import Control.Exception
+import System.IO.Error
 
 data State = State { vars :: [(Name, Int)],
                      history :: [Command] }
@@ -151,12 +151,12 @@ process st (Quit)
      = do putStrLn "bye"
           return ()
 
-
-
 process st (Read f)
-     = do content <- readFile f
-          let linesInFile = lines content
-          processFile st linesInFile
+     = do content <- tryIOError $ readFile f 
+          case content of
+               Left except -> do putStrLn ("File not found — " ++ (show except))
+                                 repl st
+               Right contents -> processFile st (lines contents)
 
 -- Read, Eval, Print Loop
 -- This reads and parses the input using the pCommand parser, and calls
