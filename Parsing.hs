@@ -126,6 +126,19 @@ int                           =  do char '-'
                                     return (-n)
                                   ||| nat
 
+-- Added to support Float function
+floatNat                      :: Parser Float
+floatNat                      = do x  <- many1 digit
+                                   y  <- char '.'
+                                   xs <- many1 digit
+                                   return (read (x ++ [y] ++ xs))
+
+float                         :: Parser Float
+float                         = do char '-'
+                                   floating <- floatNat
+                                   return (-floating)
+                                  ||| floatNat
+
 file                          :: Parser String
 file                          = do f <- many1 letter
                                    y <- char '.'
@@ -155,6 +168,10 @@ natural                       =  token nat
 
 integer                       :: Parser Int
 integer                       =  token int
+
+-- Added to support float
+floatingPoint                 :: Parser Float
+floatingPoint                 = token float
 
 symbol                        :: String -> Parser String
 symbol xs                     =  token (string xs)
