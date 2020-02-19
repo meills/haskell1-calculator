@@ -7,7 +7,7 @@ import Data.Char (isDigit)
 import Control.Exception
 import System.IO.Error
 
-data State = State { vars :: [(Name, Int)],
+data State = State { vars :: [(Name, Float)],
                      history :: [Command] }
 
 initState :: State
@@ -16,14 +16,14 @@ initState = State [] []
 -- Given a variable name and a value, return a new set of variables with
 -- that name and value added.
 -- If it already exists, remove the old value
-updateVars :: Name -> Int -> [(Name, Int)] -> [(Name, Int)]
+updateVars :: Name -> Float -> [(Name, Float)] -> [(Name, Float)]
 updateVars name int [] = [(name, int)]
 updateVars name int (v:vs) = do let newVars = dropVar name (v:vs)
                                 newVars ++ [(name, int)]
-                                     
+
 
 -- Return a new set of variables with the given name removed
-dropVar :: Name -> [(Name, Int)] -> [(Name, Int)]
+dropVar :: Name -> [(Name, Float)] -> [(Name, Float)]
 dropVar name ((a,b):vs) = filter (\(a,_) -> a /= name) ((a,b):vs)
 
 
@@ -44,7 +44,7 @@ historyCheck :: State -> [Char] -> IO ()
 historyCheck st cmd = do if (length cmd) == 1
                          then do putStrLn "Parse error"
                                  repl st
-                         else if checkDigits (drop 1 cmd) == True 
+                         else if checkDigits (drop 1 cmd) == True
                                 then do let request = drop 1 cmd
                                         let requestInt = read request :: Int
                                         if (checkLength requestInt (history st) == True)
@@ -52,7 +52,7 @@ historyCheck st cmd = do if (length cmd) == 1
                                              else do putStrLn "Invalid history point"
                                                      repl st
                          else do putStrLn "History cannot contain non-integers"
-                                 repl st  
+                                 repl st
 
 checkDigits :: [Char] -> Bool
 checkDigits [] = True
@@ -67,7 +67,7 @@ processLine st (Set var e) cs
                             let st'' = State (newVars) (history st')
                             putStrLn "OK"
                             processFile st'' cs
-    
+
                Nothing -> do let fileSt = st
                              putStrLn "Variable has not been declared!"
                              processFile st cs
@@ -94,19 +94,19 @@ processLine st (Read f) cs
      = do content <- readFile f
           let linesInFile = lines content
           processFile st linesInFile
-          
+
 
 parseOpr :: State -> String -> [String] -> IO ()
 --parseOpr st ""  = repl st
-parseOpr st opr cs = 
+parseOpr st opr cs =
                         case parse pCommand opr of
                               [(cmd, "")] -> processLine st cmd cs
                               _ -> do putStrLn "Parse error"
-                            
+
 
 processFile :: State -> [String] -> IO ()
 processFile st [] = repl st
-processFile st (c:cs) = 
+processFile st (c:cs) =
                            parseOpr st c cs
 
 
@@ -122,10 +122,10 @@ process st (Set var e)
                             let st'' = State (newVars) (history st')
                             putStrLn "OK"
                             repl st''
-               
+
                Nothing -> do putStrLn "Variable has not been declared!"
                              repl st
-         
+
 
           -- st' should include the variable set to the result of evaluating e
 process st (Eval e)
@@ -148,7 +148,7 @@ process st (Quit)
           return ()
 
 process st (Read f)
-     = do content <- tryIOError $ readFile f 
+     = do content <- tryIOError $ readFile f
           case content of
                Left except -> do putStrLn ("File not found — " ++ (show except))
                                  repl st
