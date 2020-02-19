@@ -71,15 +71,6 @@ eval vars (Power x y) = do q <-  (eval vars x)
                            p <-  (eval vars y)
                            Just (q ** p)
 
-digitToInt :: Char -> Int
-digitToInt x = fromEnum x - fromEnum '0'
-
-intToFloat :: Int -> Float
-intToFloat floatx = fromInteger (toInteger floatx)
-
-charToFloat :: Char -> Float
-charToFloat fp = fromInteger (read [fp])
-
 pCommand :: Parser Command
 pCommand = do string ":q"
               return (Quit)
