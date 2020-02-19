@@ -36,6 +36,7 @@ addHistory :: State -> Command -> State
 addHistory st cmd = do let st' = State (vars st) (history st ++ [cmd])
                        st'
 
+
 -- | Checks the length of a list (-1) is more than the index trying to be accessed and returns a Bool result
 checkLength :: Int -> [Command] -> Bool
 checkLength request history = do let lengthOf = (length history) -1
@@ -59,15 +60,13 @@ historyCheck st cmd = do if (length cmd) == 1 --Stops the operation if the only 
                          else do putStrLn "History cannot contain non-integers"
                                  repl st
 
+
 -- | Recursively loops through the list of Chars to check if they are all digits or not, and then returns a Bool value
 checkDigits :: [Char] -> Bool
 checkDigits [] = True -- Empty string result must be true or result of function will always be false
 checkDigits (x:xs) = do if isDigit x == True then checkDigits xs
                         else False
 
-
---fileSt :: State
---fileSt = State [] []
 
 -- | Another version of 'process' that is used for file reading as this one loops back into the 'processFile' method rather than going on to the 'repl' loop, allowing the program to read files with multiple lines
 processLine :: State -> Command -> [String] -> IO ()
@@ -83,11 +82,8 @@ processLine st (Set var e) cs -- Case for variable operations
                              putStrLn "Variable has not been declared!"
                              processFile st cs
 
-
 processLine st (Eval e) cs --Case for Expressions
-     = do --let st' = addHistory st (Eval e)
-         -- let Just n = eval (vars st) e
-          case eval (vars st) e of
+     = do case eval (vars st) e of
                Just n -> do let newVars = updateVars "it" n (vars st) -- Case if an expression was valid
                             let st' = addHistory st (Eval e)
                             let st'' = State (newVars) (history st')
@@ -97,7 +93,6 @@ processLine st (Eval e) cs --Case for Expressions
                Nothing -> do putStrLn "Variable has not been declared!" -- Case if an expression was invalid (error message mentions variables as only error that could reach her would be an incorrect variable expression e.g. a + 1 when a doesn't exist)
                              processFile st cs
 
-          -- Print the result of evaluation
 processLine st (Quit) cs -- Case for a quit command
      = do putStrLn "bye"
 
@@ -109,9 +104,7 @@ processLine st (Read f) cs -- Case for a file read command
 
 -- | Special version of 'repl' that is used to parse the operations of a read in file that will not loop back on itself if there is an error
 parseOpr :: State -> String -> [String] -> IO ()
---parseOpr st ""  = repl st
-parseOpr st opr cs =
-                        case parse pCommand opr of
+parseOpr st opr cs = case parse pCommand opr of
                               [(cmd, "")] -> processLine st cmd cs
                               _ -> do putStrLn "Parse error"
 
@@ -119,17 +112,13 @@ parseOpr st opr cs =
 -- | Function that is used to process the list of commands read in from a file
 processFile :: State -> [String] -> IO ()
 processFile st [] = repl st
-processFile st (c:cs) =
-                           parseOpr st c cs
+processFile st (c:cs) = parseOpr st c cs
 
 
 -- | Process function that has multiple different results depending on the type of command that has been entered that checks if the command is valid or not according to the 'eval' function and then performs the correct operation depending on the results of 'eval'
 process :: State -> Command -> IO ()
 process st (Set var e) -- Case for variables operations
-     = do --putStrLn (show var)
-          --putStrLn(show (vars st))
-          --putStrLn (show e)
-          case eval (vars st) e of
+     = do case eval (vars st) e of
                Just n -> do let newVars = updateVars var n (vars st) -- Case for if retrieving the value of the variable was successful
                             let st' = addHistory st (Set var e)
                             let st'' = State (newVars) (history st')
@@ -141,9 +130,7 @@ process st (Set var e) -- Case for variables operations
 
 
 process st (Eval e) -- Case for expressions
-     = do --let st' = addHistory st (Eval e)
-         -- let Just n = eval (vars st) e
-          case eval (vars st) e of
+     = do case eval (vars st) e of
                Just n -> do let newVars = updateVars "it" n (vars st) --Case for if the expression is correct and successful
                             let st' = addHistory st (Eval e)
                             let st'' = State (newVars) (history st')
@@ -158,14 +145,14 @@ process st (Quit) -- Case for quit command
      = do putStrLn "bye"
           return ()
 
-
-
 process st (Read f) -- Case for file read command
           = do content <- tryIOError $ readFile f
                case content of
                          Left except -> do putStrLn ("File not found — " ++ (show except))
                                            repl st
                          Right contents -> processFile st (lines contents)
+
+
 -- | Read, Eval, Print Loop
 -- This reads and parses the input using the pCommand parser, and calls
 -- 'process' to process the command.

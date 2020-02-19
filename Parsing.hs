@@ -93,50 +93,62 @@ sat p                         =  do x <- item
 -- | Returns (after validating) a digit for use by the parser
 digit                         :: Parser Char
 digit                         =  sat isDigit
+
 -- | Returns (after validating) an upper case letter for use by the parser
 lower                         :: Parser Char
 lower                         =  sat isLower
+
 -- | Returns (after validating) an lower case letter for use by the parser
 upper                         :: Parser Char
 upper                         =  sat isUpper
+
 -- | Returns (after validating) a simple letter for use by the parser
 letter                        :: Parser Char
 letter                        =  sat isAlpha
+
 -- | Returns (after validating) a normal number for use by the parser
 alphanum                      :: Parser Char
 alphanum                      =  sat isAlphaNum
+
 -- | returns a simple char as a Parsed char
 char                          :: Char -> Parser Char
 char x                        =  sat (== x)
+
 -- | Works through a String (As a list of chars) in order to validate
 string                        :: String -> Parser String
 string []                     =  return []
 string (x:xs)                 =  do char x
                                     string xs
                                     return (x:xs)
+
 -- | Allows the parsing of expressions with more than one digit next to each other (e.g. >9 or <-9)
 many                          :: Parser a -> Parser [a]
 many p                        =  many1 p ||| return []
+
 -- | Covers the many function on the left side
 many1                         :: Parser a -> Parser [a]
 many1 p                       =  do v  <- p
                                     vs <- many p
                                     return (v:vs)
+
 -- | Checks that a variable given is a valid identifier
 ident                         :: Parser String
 ident                         =  do x  <- lower
                                     xs <- many alphanum
                                     return (x:xs)
+
 -- | Used to process Natural numbers of more than one index in size
 nat                           :: Parser Int
 nat                           =  do xs <- many1 digit
                                     return (read xs)
+
 -- | Used to process Integers in both regular and naegative form
 int                           :: Parser Int
 int                           =  do char '-'
                                     n <- nat
                                     return (-n)
                                   ||| nat
+                                  
 -- | Used to facilitate the breaking down of a file path into individual parts in order to return it as a proper String
 file                          :: Parser String
 file                          = do f <- many1 letter
