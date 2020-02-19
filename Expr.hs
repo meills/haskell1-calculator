@@ -105,7 +105,7 @@ pExpr = do t <- pTerm
                  ||| return t
 
 pFactor :: Parser Expr
-pFactor = do d <- float
+pFactor = do d <- floatingPoint
              return (Val d)
            ||| do v <- identifier
                   return (Name v)
