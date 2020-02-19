@@ -42,7 +42,9 @@ eval :: [(Name, Int)] -> -- Variable name to value mapping
         Expr -> -- Expression to evaluate
         Maybe Int -- Result (if no errors such as missing variables)
 eval vars (Val x) = Just x -- for values, just give the value directly
+
 eval vars (Name x) = retrieveVar vars x -- Retrive value of a variable
+
 eval vars (Add x y) = do q <-  (eval vars x) -- Add together two values
                          p <-  (eval vars y)
                          Just (q + p) -- Just ((eval vars x) + (eval vars y)) --fmap sum $ sequence [eval vars x, eval vars y]  -- return an error (because it's not implemented yet!)
@@ -72,9 +74,6 @@ eval vars (Power x y) = do q <-  (eval vars x) -- Find the result of one value t
                            p <-  (eval vars y)
                            Just (q ^ p)
 
--- | Turns a Char into an Int assuming the Char is a valid Int
-digitToInt :: Char -> Int
-digitToInt x = fromEnum x - fromEnum '0'
 
 -- | Function that finds what type of command the input given by the user is (Evaluation, Variable Assignment, Quit or File Read )
 pCommand :: Parser Command
