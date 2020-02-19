@@ -36,6 +36,7 @@ addHistory :: State -> Command -> State
 addHistory st cmd = do let st' = State (vars st) (history st ++ [cmd])
                        st'
 
+
 -- | Checks the length of a list (-1) is more than the index trying to be accessed and returns a Bool result
 checkLength :: Int -> [Command] -> Bool
 checkLength request history = do let lengthOf = (length history) -1
@@ -59,6 +60,7 @@ historyCheck st cmd = do if (length cmd) == 1 --Stops the operation if the only 
                          else do putStrLn "History cannot contain non-integers"
                                  repl st
 
+
 -- | Recursively loops through the list of Chars to check if they are all digits or not, and then returns a Bool value
 checkDigits :: [Char] -> Bool
 checkDigits [] = True -- Empty string result must be true or result of function will always be false
@@ -79,7 +81,6 @@ processLine st (Set var e) cs -- Case for variable operations
                Nothing -> do let initState = st--Case for if a variable has not been declared before being accessed
                              putStrLn "Variable has not been declared!"
                              processFile st cs
-
 
 processLine st (Eval e) cs --Case for Expressions
      = do case eval (vars st) e of
@@ -150,6 +151,7 @@ process st (Read f) -- Case for file read command
                          Left except -> do putStrLn ("File not found — " ++ (show except))
                                            repl st
                          Right contents -> processFile st (lines contents)
+
 
 -- | Read, Eval, Print Loop
 -- This reads and parses the input using the pCommand parser, and calls

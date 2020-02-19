@@ -30,12 +30,14 @@ data Command = Set Name Expr -- ^ Variable Assignment
 
   deriving Show
 
+
 -- | Function that recursively goes through list of variables in order to find value of a variable, or returns nothing if that variable doesn't exist
 retrieveVar :: [(Name, Int)] -> Name -> Maybe Int
 retrieveVar [] x = Nothing -- If end of list reached, variable doesn't exist so return Nothing
 retrieveVar ((a, b) : vs) x =  if a == x
                                then Just b
                                else retrieveVar vs x
+
 
 -- | eval function takes in the current list of variables, the expression to be evaluated and returns a Maybe Int (in case the expression fails). This is the framework for all the caclulations the calculator can make.
 eval :: [(Name, Int)] -> -- Variable name to value mapping
@@ -89,6 +91,7 @@ pCommand = do string ":q"
                     ||| do e <- pExpr
                            return (Eval e) -- Returns Evaluation to be performed
 
+
 -- | Function to handle simple expressions such as 'Add' and 'Minus' that have the lowest precedence
 pExpr :: Parser Expr
 pExpr = do t <- pTerm
@@ -99,6 +102,7 @@ pExpr = do t <- pTerm
                    e <- pExpr
                    return (Minus t e) --Returns expression for subtraction
                  ||| return t
+
 
 -- | Function to handle some of the complex expressions that have higher precedence such as those containing brackets or 'Abs', or those that have to be checked first such as getting the value of variables
 pFactor :: Parser Expr
@@ -116,6 +120,7 @@ pFactor = do d <- integer
                                  e <- pExpr
                                  char '|'
                                  return (Abs e) -- Return expression for finding absolute values
+
 
 -- | Function for the normal expressions that have a medium level of precedence, including the 'Multiply', 'Division', 'Power' and 'Mod' expressions
 pTerm :: Parser Expr
