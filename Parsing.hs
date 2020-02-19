@@ -145,6 +145,16 @@ file                          = do f <- many1 letter
                                    return (f ++ [y] ++ fs)
                                  ||| ident
 
+openb                          :: Parser Char
+openb                         = do char '('
+                                   return '('
+
+closingb                       :: Parser Char
+closingb                      = do char ')'
+                                   return ')'
+
+
+
 -- | Used to check for spaces and remove them before passing back to the parser
 space                         :: Parser ()
 space                         =  do many (sat isSpace)
@@ -180,3 +190,9 @@ symbol xs                     =  token (string xs)
 -- | Used to tokenize filenames
 filename                      :: Parser String
 filename                      =  token file
+
+openbracket                       :: Parser Char
+openbracket                   = token openb
+
+closebracket                  :: Parser Char
+closebracket                  = token closingb

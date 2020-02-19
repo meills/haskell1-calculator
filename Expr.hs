@@ -109,9 +109,9 @@ pFactor = do d <- integer
                   return (Name v) -- Return expression for value of a variable
                 ||| do f <- file
                        return (Name f)
-                     ||| do char '('
+                     ||| do a <- openbracket
                             e <- pExpr
-                            char ')'
+                            b <- closebracket
                             return e -- Return expression for value/expression held with brackets
                           ||| do char '|'
                                  e <- pExpr
