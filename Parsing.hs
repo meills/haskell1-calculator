@@ -148,7 +148,7 @@ int                           =  do char '-'
                                     n <- nat
                                     return (-n)
                                   ||| nat
-                                  
+
 -- | Used to facilitate the breaking down of a file path into individual parts in order to return it as a proper String
 file                          :: Parser String
 file                          = do f <- many1 letter
@@ -203,8 +203,10 @@ symbol xs                     =  token (string xs)
 filename                      :: Parser String
 filename                      =  token file
 
-openbracket                       :: Parser Char
+-- | Used to tokenize open brackets
+openbracket                   :: Parser Char
 openbracket                   = token openb
 
+-- | Used to tokenize closing brackets
 closebracket                  :: Parser Char
 closebracket                  = token closingb
