@@ -56,11 +56,9 @@ eval vars (Abs x) = do q <-  (eval vars x)
 eval vars (Mod x y) = do q <-  (eval vars x)
                          p <-  (eval vars y)
                          Just (mod' q p )
-                     --     Just (mod q p )
 eval vars (Power x y) = do q <-  (eval vars x)
                            p <-  (eval vars y)
                            Just (q ** p)
-                     --       Just (q ^ p)
 
 digitToInt :: Char -> Int
 digitToInt x = fromEnum x - fromEnum '0'
@@ -68,8 +66,8 @@ digitToInt x = fromEnum x - fromEnum '0'
 intToFloat :: Int -> Float
 intToFloat floatx = fromInteger (toInteger floatx)
 
-charToFloat :: Char -> Float
-charToFloat fp = fromInteger (read [fp])
+charToFloat :: [Char] -> Float
+charToFloat fp = fromInteger (read fp)
 
 pCommand :: Parser Command
 pCommand = do string "quit"
