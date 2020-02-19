@@ -33,10 +33,9 @@ addHistory st cmd = do let st' = State (vars st) (history st ++ [cmd])
                        st'
                               --else let st' = State (vars st) (history st ++ [cmd])
 
-checkLength :: Float -> [Command] -> Bool
+checkLength :: Int -> [Command] -> Bool
 checkLength request history = do let lengthOf = (length history) -1
-                                 let lengthOfInFloat = intToFloat lengthOf
-                                 if lengthOfInFloat < request
+                                 if lengthOf < request
                                      then False
                                      else True
 
@@ -48,8 +47,7 @@ historyCheck st cmd = do if (length cmd) == 1
                          else if checkDigits (drop 1 cmd) == True 
                                 then do let request = drop 1 cmd
                                         let requestInt = read request :: Int
-                                        let requestFloat = charToFloat request
-                                        if (checkLength requestFloat (history st) == True)
+                                        if (checkLength requestInt (history st) == True)
                                              then process st (history st !!(requestInt))
                                              else do putStrLn "Invalid history point"
                                                      repl st
